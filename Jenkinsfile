@@ -9,11 +9,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-               beforeAgent true
-               branch 'master'
-            }
-
             steps {
                 //TODO: validate semver version
                 // if ("$IMAGE_VERSION" =~ '[0-9]+\\.[0-9]+\\.[0-9]+') {
@@ -26,10 +21,6 @@ pipeline {
         }
 
         stage('Tagging') {
-            when {
-               branch 'master'
-            }
-
             steps {
                 echo 'Tagging ...'
 
