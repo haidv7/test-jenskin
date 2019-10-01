@@ -4,7 +4,6 @@ pipeline {
     GenericTrigger(
      genericVariables: [
       [expressionType: 'JSONPath', key: 'ref', value: '$.ref'],
-      [expressionType: 'JSONPath', key: 'message', value: '$.head_commit.message'],
      ],
      causeString: 'Triggered on $ref',
      regexpFilterExpression: 'generic $ref',
@@ -18,7 +17,7 @@ pipeline {
       steps {
         sh """
           echo reference ${ref}
-          echo message ${message}
+          echo message ${GIT_COMMIT} 
         """
       }
     }
