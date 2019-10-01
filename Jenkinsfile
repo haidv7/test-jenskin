@@ -3,8 +3,8 @@ pipeline {
   triggers {
     GenericTrigger(
      genericVariables: [
-      [key: 'ref', value: '$.ref'],
-      [key: 'message', value: '$.head_commit.message'],
+      [expressionType: 'JSONPath', key: 'ref', value: '$.ref'],
+      [expressionType: 'JSONPath', key: 'message', value: '$.head_commit.message'],
      ],
      causeString: 'Triggered on $ref',
      regexpFilterExpression: 'generic $ref',
