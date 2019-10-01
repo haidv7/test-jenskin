@@ -16,7 +16,7 @@ pipeline {
     stage('Test Generic Trigger') {
       steps {
         script {
-            message = sh(script: 'git log --format=format:%s -1', returnStdout: true).trim()
+            message = sh(script: 'git show -s $GIT_COMMIT --format="format:%s"', returnStdout: true).trim()
         }
         echo "reference ${ref}"
         echo "message ${message}" 
