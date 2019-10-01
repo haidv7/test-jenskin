@@ -3,7 +3,7 @@ pipeline {
   triggers {
     GenericTrigger(
      genericVariables: [
-      [key: 'ref', value: '$.ref'],
+      [key: 'ref', value: '$.action'],
      ],
      causeString: 'Triggered on $ref',
      regexpFilterExpression: 'generic $ref',
@@ -16,7 +16,7 @@ pipeline {
     stage('Test Generic Trigger') {
       steps {
         sh """
-          echo reference ${ref}
+          echo reference ${action}
         """
       }
     }
