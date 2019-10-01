@@ -15,11 +15,13 @@ pipeline {
   stages {
     stage('Test Generic Trigger') {
       steps {
-        message = sh(script: 'git log -1 --pretty=%H', returnStdout: true).trim()
-        sh """
-          echo reference ${ref}
-          echo message ${message} 
-        """
+        script {
+            message = sh(script: 'git log -1 --pretty=%H', returnStdout: true).trim()
+            sh """
+                echo reference ${ref}
+                echo message ${message} 
+            """
+        }
       }
     }
   }
