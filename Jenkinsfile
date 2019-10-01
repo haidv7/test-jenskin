@@ -14,15 +14,6 @@ pipeline {
                branch 'master'
             }
 
-            input {
-                id: 'image_version'
-                message 'Input version number to be realeased'
-                ok: 'Release' 
-                parameters {
-                    string(name: 'IMAGE_VERSION', description: 'Version number to be released, which must be following the semantic version(https://semver.org/)')
-                }
-            }
-
             steps {
                 //TODO: validate semver version
                 // if ("$IMAGE_VERSION" =~ '[0-9]+\\.[0-9]+\\.[0-9]+') {
@@ -30,7 +21,6 @@ pipeline {
                 //     proccess.exit(1)
                 // }
                 echo 'Building and pushing image ...'
-                echo "IMAGE_VERSION=${IMAGE_VERSION}"
               
             }
         }
