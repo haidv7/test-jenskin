@@ -1,25 +1,7 @@
 pipeline {
     agent any
 
-    parameters {
-        gitParameter branchFilter: 'origin/(.*)', defaultValue: 'develop', name: 'BRANCH', type: 'PT_BRANCH'
-    }
-
     stages {
-        stage('Info') {
-            steps {
-                script {
-                    currentBuild.description = "Build ${params.BRANCH} branch on $ENVIRONMENT_NAME with RESET_DB=$RESET_DB"
-                }
-            }
-        }
-        
-        stage('Checkout codes'){
-            steps {
-                git branch: "${params.BRANCH}", credentialsId: '2b641c02-130f-4268-855e-c6141c1b954d', url: scm.getUserRemoteConfigs()[0].getUrl()
-            }
-        }
-
         stage('Test') {
             steps {
                 echo 'Running tests ...'
