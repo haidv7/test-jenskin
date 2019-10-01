@@ -17,7 +17,6 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                echo "Action: ${payload}"
                 echo 'Running tests ...'
             }
         }
