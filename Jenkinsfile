@@ -6,8 +6,6 @@ pipeline {
             genericVariables: [
             [key: 'action', value: '$.action'],
             [key: 'merged', value: '$.pull_request.merged']
-            [key: 'sourceBranch', value: '$.pull_request.head.ref'],
-            [key: 'targetBranch', value: '$.pull_request.base.ref']
             ],
             causeString: 'Triggered',
             regexpFilterExpression: '',
