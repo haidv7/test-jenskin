@@ -8,7 +8,7 @@ pipeline {
      ],
      causeString: 'Triggered on $ref',
      regexpFilterExpression: 'generic $ref',
-     regexpFilterText: '$repository refs/heads/' + BRANCH_NAME,
+     regexpFilterText: '',
      printContributedVariables: true,
      printPostContent: true
     )
