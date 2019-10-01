@@ -4,7 +4,8 @@ pipeline {
     triggers {
         GenericTrigger(
             genericVariables: [
-            [key: 'payload', value: '$'],
+            [key: 'action', value: '$.action'],
+            [key: 'merged', value: '$.pull_request.merged']
             ],
             causeString: 'Triggered',
             regexpFilterExpression: '',
@@ -17,7 +18,8 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh "echo $payload"
+                echo "Action: $action"
+                echo "merged: $merged"
                 echo 'Running tests ...'
             }
         }
