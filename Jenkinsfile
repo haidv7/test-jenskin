@@ -1,9 +1,26 @@
 pipeline {
     agent any
 
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+            [key: 'action', value: '$.action'],
+            [key: 'merged', value: '$.merged']
+            [key: 'sourceBranch', value: '$.head.ref'],
+            [key: 'targetBranch', value: '$.base.ref']
+            ],
+            causeString: 'Triggered',
+            regexpFilterExpression: '',
+            regexpFilterText: '',
+            printContributedVariables: true,
+            printPostContent: true
+        )
+  }
+
     stages {
         stage('Test') {
             steps {
+                echo "Action: ${action}"
                 echo 'Running tests ...'
             }
         }
