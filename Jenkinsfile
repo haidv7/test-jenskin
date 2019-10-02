@@ -46,11 +46,11 @@ pipeline {
 
             // Merge pull request and tag verion
             echo "Merging pull request from ${env.BRANCH_NAME} to master ..."
-            // sh "git checkout master"
-            // sh "git merge --no-ff ${env.BRANCH_NAME}"
-            // sh "git tag ${release_version}"
-            // sh "git push origin master"
-            // sh "git push origin ${release_version}"
+            sh "git checkout origin/master"
+            sh "git merge --no-ff ${env.BRANCH_NAME}"
+            sh "git tag ${release_version}"
+            sh "git push origin master"
+            sh "git push origin ${release_version}"
             echo "Done"
         }
       }
