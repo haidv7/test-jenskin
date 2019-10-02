@@ -14,7 +14,7 @@ pipeline {
                                         name: 'version'
                                         ]
                                     ]
-            echo "Answer: $confirm_release.version"
+            echo "Answer: $confirm_release"
         }
       }
     }
