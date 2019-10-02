@@ -5,7 +5,7 @@ pipeline {
     stage('Confirm Relealse') {
       steps {
         script {
-            confirm_release = input message: 'Do you want to release a new version',
+            release_version = input message: 'Do you want to release a new version',
                                     ok: 'Release',
                                     parameters: [
                                         [$class: 'TextParameterDefinition',
@@ -14,7 +14,10 @@ pipeline {
                                         name: 'version'
                                         ]
                                     ]
-            echo "Answer: $confirm_release"
+            if (release_version == '') {
+                currentBuild.result = 'SUCCESS'
+            }
+            echo "Answer: $release_version"
         }
       }
     }
