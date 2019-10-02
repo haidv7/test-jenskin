@@ -39,18 +39,19 @@ pipeline {
               repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
 
               sh """
-                curl -v -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X POST "https://api.github.com/repos/${repo_owner}/${repo}/pulls" -d '{"title":"Release ${release_version}","body": "Release ${release_version}","head": "${env.BRANCH_NAME}","base": "master"}'
+                curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X POST "https://api.github.com/repos/${repo_owner}/${repo}/pulls" -d '{"title":"Release ${release_version}","body": "Release ${release_version}","head": "${env.BRANCH_NAME}","base": "master"}'
               """
             }
             echo "Done."
 
             // Merge pull request and tag verion
             echo "Merging pull request from ${env.BRANCH_NAME} to master ..."
-            // sh "git checkout master"
-            // sh "git merge --no-ff ${env.BRANCH_NAME}"
-            // sh "git tag ${release_version}"
-            // sh "git push origin master"
-            // sh "git push origin ${release_version}"
+            sh "git fetch origin"
+            sh "git checkout origin/master"
+            sh "git merge --no-ff ${env.BRANCH_NAME}"
+            sh "git tag ${release_version}"
+            sh "git push origin master"
+            sh "git push origin ${release_version}"
             echo "Done"
         }
       }
