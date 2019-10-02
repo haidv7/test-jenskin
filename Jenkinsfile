@@ -17,7 +17,10 @@ pipeline {
             if (release_version == '') {
                 currentBuild.result = 'SUCCESS'
             }
+
+            isVerionValid = (release_version ==~ /Patch_For_(\d+\.)?(\d+\.)?(\d+)/)
             echo "Answer: $release_version"
+            echo "Is version valid ? $isVerionValid"
         }
       }
     }
