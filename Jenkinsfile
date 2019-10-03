@@ -86,6 +86,7 @@ pipeline {
               origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
 
               sh """
+                git fetch --all
                 git checkout master
                 git pull origin master
                 git tag ${release_version}
