@@ -59,7 +59,7 @@ pipeline {
          branch "release/*"
          expression { release_version != '' }
       }
-      
+
       steps {
         // Create pull request from lastest commit in the current branch
         echo "Creating new pull request from ${env.BRANCH_NAME} to master ..."
@@ -111,6 +111,7 @@ pipeline {
           }
         }
 
+        echo "Merged response status: ${merged_response_status}"
         echo "Merging pull request #${pull_request_number} successfully."
         echo "Done."
       }
