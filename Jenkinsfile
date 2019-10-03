@@ -38,20 +38,30 @@ pipeline {
               repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
               repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
 
-              sh """
-                curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X POST "https://api.github.com/repos/${repo_owner}/${repo}/pulls" -d '{"title":"Release ${release_version}","body": "Release ${release_version}","head": "${env.BRANCH_NAME}","base": "master"}'
-              """
+              pull_request_number = sh (
+                script: """curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X POST "https://api.github.com/repos/${repo_owner}/${repo}/pulls" -d '{"title":"Release ${release_version}", "body": "Release ${release_version}", "head": "${env.BRANCH_NAME}", "base": "master"}' 2>&1 | grep '"number":' | sed 's/[^0-9]*//g' """,
+                returnStdout: true
+              ).trim()
             }
+            echo "Creating pull request #${pull_request_number} successfully."
             echo "Done."
 
             // Merge pull request and tag verion
-            echo "Merging pull request from ${env.BRANCH_NAME} to master ..."
-            sh "git fetch origin"
-            sh "git checkout origin/master"
-            sh "git merge --no-ff ${env.BRANCH_NAME}"
-            sh "git tag ${release_version}"
-            sh "git push origin master"
-            sh "git push origin ${release_version}"
+            echo "Merging pull request #${pull_request_number} to master ..."
+             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+              repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
+              repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
+
+              sh """
+                curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X PUT "https://api.github.com/repos/${repo_owner}/${repo}/pulls/${pull_request_number}/merge"
+              """
+            }
+            echo "Merging pull request #${pull_request_number} successfully."
+            // sh "git checkout origin/master"
+            // sh "git merge --no-ff ${env.BRANCH_NAME}"
+            // sh "git tag ${release_version}"
+            // sh "git push origin master"
+            // sh "git push origin ${release_version}"
             echo "Done"
         }
       }
