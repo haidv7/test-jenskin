@@ -50,6 +50,10 @@ pipeline {
                 script: """curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X POST "https://api.github.com/repos/${repo_owner}/${repo}/pulls" -d '{"title":"Release ${release_version}", "body": "Release ${release_version}", "head": "${env.BRANCH_NAME}", "base": "master"}' 2>&1 | grep '"number":' | sed 's/[^0-9]*//g' """,
                 returnStdout: true
               ).trim()
+
+              if (!pull_request_number || pull_request_number == null) {
+                  currentBuild.result = 'FAILURE'
+              }
             }
             echo "Creating pull request #${pull_request_number} successfully."
             echo "Done."
@@ -60,9 +64,14 @@ pipeline {
               repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
               repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
 
-              sh """
-                curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X PUT "https://api.github.com/repos/${repo_owner}/${repo}/pulls/${pull_request_number}/merge"
-              """
+              merged_response_status = sh (
+                script: """curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X PUT "https://api.github.com/repos/${repo_owner}/${repo}/pulls/${pull_request_number}/merge" --write-out %{http_code} --silent --output /dev/null """,
+                returnStdout: true
+              ).trim()
+
+              if (merged_response_status != 200) {
+                currentBuild.result = 'FAILURE'
+              }
             }
             echo "Merging pull request #${pull_request_number} successfully."
             
