@@ -2,12 +2,6 @@ pipeline {
   agent any
 
   stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
     stage('Confirm Release') {
       when {
            beforeInput true
@@ -82,13 +76,11 @@ pipeline {
             echo "Merging pull request #${pull_request_number} successfully."
             
             echo "Tagging..."
+            git branch: "master", credentialsId: 'hai.dinh', url: scm.getUserRemoteConfigs()[0].getUrl()
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
               origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
 
               sh """
-                git fetch --all
-                git checkout master
-                git pull origin master
                 git tag ${release_version}
                 git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
                 git push origin ${release_version}
