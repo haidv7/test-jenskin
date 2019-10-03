@@ -31,9 +31,18 @@ pipeline {
           
             echo "====== Preparing to release new version: $release_version ======"
 
+            // Bumping version in package.json
+            echo "Bumping version in package.json to ${release_version}"
+            sh """
+              sed -i 's/"version": .*,/"version": "${release_version}",/' package.json
+              git add package.json
+              git commit -m "Bumping version to ${release_version}"
+              git push origin ${env.BRANCH_NAME}
+            """
+            echo "Done"
+
             // Create pull request from lastest commit in the current branch
             echo "Creating new pull request from ${env.BRANCH_NAME} to master ..."
-            
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
               repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
               repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
