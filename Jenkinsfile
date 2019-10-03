@@ -33,6 +33,10 @@ pipeline {
     }
 
     stage('Bumping version') {
+      when {
+         expression { release_version != '' }
+      }
+
       steps {
         // Bumping version in package.json
         echo "Bumping version in package.json to ${release_version}"
@@ -45,11 +49,17 @@ pipeline {
           """
         }
 
+        is_bump_successful = true
+
         echo "Done."
       }
     }
 
     stage('Creating PR') {
+      when {
+        expression { is_bump_successful == true }
+      }
+
       steps {
         script {
           // Create pull request from lastest commit in the current branch
@@ -76,6 +86,10 @@ pipeline {
     }
 
     stage('Merging PR') {
+      when {
+         expression { pull_request_number != '' }
+      }
+
       steps {
         // Merge pull request
         echo "Merging pull request #${pull_request_number} to master ..."
@@ -103,6 +117,10 @@ pipeline {
     }
 
     stage('Tagging') {
+      when {
+         expression { pull_request_number == '200' }
+      }
+
       steps {
         echo "Tagging..."
 
