@@ -51,7 +51,7 @@ pipeline {
                 returnStdout: true
               ).trim()
 
-              if (!pull_request_number || pull_request_number == null) {
+              if (pull_request_number == '') {
                   currentBuild.result = 'FAILURE'
               }
             }
