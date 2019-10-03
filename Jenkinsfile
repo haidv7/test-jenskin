@@ -37,9 +37,8 @@ pipeline {
               sed -i 's/"version": .*,/"version": "${release_version}",/' package.json
               git add package.json
               git commit -m "Bumping version to ${release_version}"
-              git push origin ${env.BRANCH_NAME}
             """
-            echo "Done"
+            echo "Done."
 
             // Create pull request from lastest commit in the current branch
             echo "Creating new pull request from ${env.BRANCH_NAME} to master ..."
@@ -66,12 +65,19 @@ pipeline {
               """
             }
             echo "Merging pull request #${pull_request_number} successfully."
-            // sh "git checkout origin/master"
-            // sh "git merge --no-ff ${env.BRANCH_NAME}"
-            // sh "git tag ${release_version}"
-            // sh "git push origin master"
-            // sh "git push origin ${release_version}"
-            echo "Done"
+            
+            echo "Tagging..."
+            git branch: "master", credentialsId: 'hai.dinh', url: scm.getUserRemoteConfigs()[0].getUrl()
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+              origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
+
+              sh """
+                git tag ${release_version}
+                git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
+                git push origin ${release_version}
+              """
+            }
+            echo "Done."
         }
       }
     }
