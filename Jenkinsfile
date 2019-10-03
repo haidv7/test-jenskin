@@ -51,8 +51,10 @@ pipeline {
                 returnStdout: true
               ).trim()
 
-              if (pull_request_number == '') {
+              script {
+                 if (pull_request_number == '') {
                   currentBuild.result = 'FAILURE'
+                }
               }
             }
             echo "Creating pull request #${pull_request_number} successfully."
@@ -69,8 +71,10 @@ pipeline {
                 returnStdout: true
               ).trim()
 
-              if (merged_response_status != 200) {
-                currentBuild.result = 'FAILURE'
+              script {
+                if (merged_response_status != 200) {
+                  currentBuild.result = 'FAILURE'
+                }
               }
             }
             echo "Merging pull request #${pull_request_number} successfully."
