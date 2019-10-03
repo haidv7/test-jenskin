@@ -65,7 +65,7 @@ pipeline {
               repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
 
               merged_response_status = sh (
-                script: """curl -s -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X PUT "https://api.github.com/repos/${repo_owner}/${repo}/pulls/${pull_request_number}/merge" --write-out %{http_code} --silent --output /dev/null """,
+                script: """curl -s -LI -u "$USERNAME:$PASSWORD" -H 'Content-Type: application/json' -X PUT "https://api.github.com/repos/${repo_owner}/${repo}/pulls/${pull_request_number}/merge" -o /dev/null -w '%{http_code}\n' """,
                 returnStdout: true
               ).trim()
 
