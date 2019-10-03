@@ -20,7 +20,6 @@ pipeline {
                                         ]
                                     ]
             if (release_version == '') {
-                echo 'Error: Your version is empty.'
                 currentBuild.result = 'FAILURE'
             }
 
@@ -34,6 +33,11 @@ pipeline {
     }
 
     stage('Bumping version') {
+      when {
+         branch "release/*"
+         expression { release_version != '' }
+      }
+
       steps {
         // Bumping version in package.json
         echo "Bumping version in package.json to ${release_version}"
@@ -51,11 +55,16 @@ pipeline {
     }
 
     stage('Creating PR') {
-      steps {
-        script {
-          // Create pull request from lastest commit in the current branch
-          echo "Creating new pull request from ${env.BRANCH_NAME} to master ..."
+      when {
+         branch "release/*"
+         expression { release_version != '' }
+      }
 
+      steps {
+        // Create pull request from lastest commit in the current branch
+        echo "Creating new pull request from ${env.BRANCH_NAME} to master ..."
+
+        script {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
             repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
@@ -69,14 +78,18 @@ pipeline {
           if (pull_request_number == '') {
             currentBuild.result = 'FAILURE'
           }
-
-          echo "Creating pull request #${pull_request_number} successfully."
-          echo "Done."
         }
+
+        echo "Creating pull request #${pull_request_number} successfully."
+        echo "Done."
       }
     }
 
     stage('Merging PR') {
+      when {
+         expression { pull_request_number != '' }
+      }
+
       steps {
         // Merge pull request
         echo "Merging pull request #${pull_request_number} to master ..."
@@ -98,12 +111,17 @@ pipeline {
           }
         }
 
+        echo "Merged response status: ${merged_response_status}"
         echo "Merging pull request #${pull_request_number} successfully."
         echo "Done."
       }
     }
 
     stage('Tagging') {
+      when {
+         expression { merged_response_status == '200' }
+      }
+
       steps {
         echo "Tagging..."
 
