@@ -1,3 +1,6 @@
+def bump_version_stage_result = true
+def tag_stage_result = true
+
 pipeline {
   agent any
 
@@ -31,8 +34,6 @@ pipeline {
         }
       }
     }
-
-    boolean bump_version_stage_result = true;
 
     stage('Bumping version') {
       when {
@@ -157,7 +158,6 @@ pipeline {
       }
     }
 
-    boolean tag_stage_result = true
 
     stage('Tagging') {
       when {
