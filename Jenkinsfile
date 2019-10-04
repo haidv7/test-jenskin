@@ -42,14 +42,22 @@ pipeline {
         // Bumping version in package.json
         echo "Bumping version in package.json to ${release_version}"
 
+        git branch: env.BRANCH_NAME, credentialsId: 'hai.dinh', url: scm.getUserRemoteConfigs()[0].getUrl()
+
         script {
-          sh """
-            sed -i 's/"version": .*,/"version": "${release_version}",/' package.json
-            sed -i 's/export IMAGE_VERSION=.*/export IMAGE_VERSION=${release_version}/' docker/.bin/.env.sh
-            git add package.json
-            git add docker/.bin/.env.sh
-            git commit -m "Bumping version to ${release_version}"
-          """
+          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
+
+            sh """
+              sed -i 's/"version": .*,/"version": "${release_version}",/' package.json
+              sed -i 's/export IMAGE_VERSION=.*/export IMAGE_VERSION=${release_version}/' docker/.bin/.env.sh
+              git add package.json
+              git add docker/.bin/.env.sh
+              git commit -m "Bumping version to ${release_version}"
+              git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
+              git push origin ${env.BRANCH_NAME}
+            """
+          }
         }
 
         echo "Done."
@@ -95,10 +103,19 @@ pipeline {
       steps {
         echo "Revert bump version commit in ${env.BRANCH_NAME}"
 
-        sh """
-          git reset --hard HEAD~1
-          git push origin ${env.BRANCH_NAME} -f
-        """
+        git branch: env.BRANCH_NAME, credentialsId: 'hai.dinh', url: scm.getUserRemoteConfigs()[0].getUrl()
+
+        script {
+          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
+
+            sh """
+              git reset --hard HEAD~1
+              git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
+              git push origin ${env.BRANCH_NAME} -f
+            """
+          }
+        }
       }
     }
 
