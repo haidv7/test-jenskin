@@ -45,7 +45,9 @@ pipeline {
         script {
           sh """
             sed -i 's/"version": .*,/"version": "${release_version}",/' package.json
+            sed -i 's/export IMAGE_VERSION=.*/export IMAGE_VERSION=${release_version}/' docker/.bin/.env.sh
             git add package.json
+            git add docker/.bin/.env.sh
             git commit -m "Bumping version to ${release_version}"
           """
         }
@@ -82,6 +84,21 @@ pipeline {
 
         echo "Creating pull request #${pull_request_number} successfully."
         echo "Done."
+      }
+    }
+
+    stage('Revert if creating PR fail') {
+      when {
+         expression { pull_request_number == '' }
+      }
+
+      steps {
+        echo "Revert bump version commit in ${env.BRANCH_NAME}"
+
+        sh """
+          git reset --hard HEAD~1
+          git push origin ${env.BRANCH_NAME} -f
+        """
       }
     }
 
