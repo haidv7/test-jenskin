@@ -1,5 +1,6 @@
 def bump_version_stage_result = true
 def tag_stage_result = true
+def pull_request_number = ''
 
 pipeline {
   agent any
@@ -7,38 +8,38 @@ pipeline {
   stages {
     stage('Confirm Release') {
       when {
-           beforeInput true
-           branch "release/*"
+        beforeInput true
+        branch "release/*"
       }
 
       steps {
         script {
-            release_version = input message: 'Do you want to release a new version',
-                                    ok: 'Release',
-                                    parameters: [
-                                        [$class: 'TextParameterDefinition',
-                                        defaultValue: '',
-                                        description: 'Version to be released',
-                                        name: 'version'
-                                        ]
-                                    ]
-            if (release_version == '') {
-                currentBuild.result = 'FAILURE'
-            }
+          release_version = input message: 'Do you want to release a new version',
+                                  ok: 'Release',
+                                  parameters: [
+                                      [$class: 'TextParameterDefinition',
+                                      defaultValue: '',
+                                      description: 'Version to be released',
+                                      name: 'version'
+                                      ]
+                                  ]
+          if (release_version == '') {
+              currentBuild.result = 'FAILURE'
+          }
 
-            // TODO: validate version
-            // isVerionValid = (release_version ==~ /Patch_For_(\d+\.)?(\d+\.)?(\d+)/)
-            // if (isVerionValid) {
-            //     currentBuild.result = 'FAILURE'
-            // }
+          // TODO: validate version
+          // isVerionValid = (release_version ==~ /Patch_For_(\d+\.)?(\d+\.)?(\d+)/)
+          // if (isVerionValid) {
+          //     currentBuild.result = 'FAILURE'
+          // }
         }
       }
     }
 
     stage('Bumping version') {
       when {
-         branch "release/*"
-         expression { release_version != '' }
+        branch "release/*"
+        expression { release_version != '' }
       }
 
       steps {
@@ -73,8 +74,8 @@ pipeline {
 
     stage('Creating PR') {
       when {
-         branch "release/*"
-         expression { bump_version_stage_result == true }
+        branch "release/*"
+        expression { bump_version_stage_result == true }
       }
 
       steps {
@@ -104,7 +105,7 @@ pipeline {
 
     stage('Revert if creating PR fail') {
       when {
-         expression { bump_version_stage_result == false }
+        expression { bump_version_stage_result == false }
       }
 
       steps {
@@ -128,7 +129,7 @@ pipeline {
 
     stage('Merging PR') {
       when {
-         expression { pull_request_number != '' }
+        expression { pull_request_number != '' }
       }
 
       steps {
@@ -136,7 +137,6 @@ pipeline {
         echo "Merging pull request #${pull_request_number} to master ..."
 
         script {
-          
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             repo = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
             repo_owner = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[2]
@@ -161,7 +161,7 @@ pipeline {
 
     stage('Tagging') {
       when {
-         expression { merged_response_status == '200' }
+        expression { merged_response_status == '200' }
       }
 
       steps {
@@ -201,13 +201,13 @@ pipeline {
 
         script {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'hai.dinh', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-              origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
+            origin_url = scm.getUserRemoteConfigs()[0].getUrl().split('//')[1]
 
-              sh """
-                git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
-                git merge master
-                git push origin develop
-              """
+            sh """
+              git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
+              git merge master
+              git push origin develop
+            """
             }
         }
         
