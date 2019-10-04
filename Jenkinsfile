@@ -1,5 +1,5 @@
 def bump_version_stage_result = true
-def tag_stage_result = true
+def tag_stage_result = false
 def pull_request_number = ''
 def merged_response_status = ''
 
@@ -183,6 +183,8 @@ pipeline {
                 git remote set-url origin https://$USERNAME:$PASSWORD@${origin_url}
                 git push origin ${release_version}
               """
+
+            tag_stage_result = true;
             }
           } catch (e) {
             tag_stage_result = false
