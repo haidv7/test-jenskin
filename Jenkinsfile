@@ -1,6 +1,7 @@
 def bump_version_stage_result = true
 def tag_stage_result = true
 def pull_request_number = ''
+def merged_response_status = ''
 
 pipeline {
   agent any
@@ -105,7 +106,10 @@ pipeline {
 
     stage('Revert if creating PR fail') {
       when {
-        expression { bump_version_stage_result == false }
+        allOf {
+          expression { bump_version_stage_result == true }
+          expression { pull_request_number == '' }
+        }
       }
 
       steps {
