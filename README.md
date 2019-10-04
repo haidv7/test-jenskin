@@ -1,3 +1,3 @@
 # Jenkins test repositories
 
-v3.0.0
+v4.0.0
